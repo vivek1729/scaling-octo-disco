@@ -1,0 +1,40 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: octo-web-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: octo-web-server
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5 
+  template:
+    metadata:
+      labels:
+        app: octo-web-server
+    spec:
+      containers:
+      - name: octo-web-server
+        image: acroctodisco.azurecr.io/scaling-octo-disco:latest
+        ports:
+        - containerPort: 4040
+        resources:
+          requests:
+            cpu: 250m
+          limits:
+            cpu: 500m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: octo-web-server
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 4040
+  selector:
+    app: octo-web-server
